@@ -5,18 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Model
+class Wallet extends Model
 {
     use HasFactory;
-    protected $table = "employees";
+    protected $table = "wallets";
     protected $fillable = [
-        "employee_name",
-        "address",
-        "tel",
-        "email",
-        "national_id",
+        "balance",
+        "user_id",
         "station_id",
-        "status",
         "created_by"
     ];
 }

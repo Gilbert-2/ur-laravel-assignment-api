@@ -5,17 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Model
+class Companies extends Model
 {
-    use HasFactory;
-    protected $table = "employees";
+   use HasFactory;
+    protected $table = "companies";
     protected $fillable = [
-        "employee_name",
+        "company_name",
         "address",
         "tel",
-        "email",
-        "national_id",
-        "station_id",
+        "company_email",
+        "rdb_certificate",
         "status",
         "created_by"
     ];

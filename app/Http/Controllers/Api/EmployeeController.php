@@ -46,16 +46,25 @@ class EmployeeController extends Controller
     public function createEmployee(Request $request)
     {
         $request->validate([
-            "name" => 'required|string|max:256',
+            "employee_name" => 'required|string|max:256',
             "address" => 'required|string:128',
             "tel" => 'required|digits:10',
-            "email" => 'required|string'
+            "email" => 'required',
+            "national_id" => 'required',
+            "station_id" => 'required',
+            "status" => 'required',
+            "created_by" => 'required',
+
         ]);
         $employees = Employee::create([
-            "name" => $request->name,
+            "employee_name" => $request->employee_name,
             "address" => $request->address,
             "tel" => $request->tel,
-            "email" => $request->email
+            "email" => $request->email,
+            "national_id" => $request->national_id,
+            "station_id" => $request->station_id,
+            "status" => $request->status,
+            "created_by" => $request->$request->user()->id,
         ]);
         if ($employees->count() > 0) {
 
@@ -73,7 +82,7 @@ class EmployeeController extends Controller
     public function updateEmployee(Request $request, int $id)
     {
         $request->validate([
-            "name" => 'required|string|max:256',
+            "employee_name" => 'required|string|max:256',
             "address" => 'required|string',
             "tel" => 'required|digits:10',
             "email" => 'required|string'
@@ -82,7 +91,7 @@ class EmployeeController extends Controller
 
         if ($employee) {
             $employee->update([
-                "name" => $request->name,
+                "employee_name" => $request->employee_name,
                 "address" => $request->address,
                 "tel" => $request->tel,
                 "email" => $request->email
@@ -111,7 +120,7 @@ class EmployeeController extends Controller
         } else {
             return response()->json([
                 'status' => 404,
-                "message" => 'No employee found with that id',
+                "message" => 'No employee found with that id '.$id,
             ], 404);
         }
     }
