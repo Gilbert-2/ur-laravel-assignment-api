@@ -114,8 +114,7 @@ class QrcodeController extends Controller
             ]);
         if ($qrcode) {
             $qrcode->update([
-                "status" => "INVALID",
-                 "user_id" => $request->user()->id,
+                "status" => "INVALID"
             ]);
             return response()->json([
                 'status' => 200,
