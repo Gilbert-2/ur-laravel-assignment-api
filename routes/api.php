@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\QrcodeController;
+use App\Http\Controllers\Api\StationScheduleController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,25 +31,31 @@ Route::post('/login',[AuthController::class,'Login'] );
 
 //Protected routes-Only authenticated users can have access to protected routes//
 Route::group(['middleware' => ['auth:sanctum']], function () {
-
+// Employees routes
 Route::get('/employees',[EmployeeController::class, "getAllEmployees"]);
 Route::post('/create-employee',[EmployeeController::class, "createEmployee"]);
 Route::get('/employee/{id}',[EmployeeController::class, "getEmployeeById"]);
 Route::put('/employee/update/{id}',[EmployeeController::class, "updateEmployee"]);
 Route::delete('/employee/delete/{id}',[EmployeeController::class, "deleteEmployee"]);
-
+// Qrcodes routes
 Route::get('/qrcodes',[QrcodeController::class, "getAllQrcodes"]);
 Route::post('/create-qrcode',[QrcodeController::class, "createQrcode"]);
 Route::get('/qrcode/{id}',[QrcodeController::class, "getQrcodeById"]);
-Route::put('/qrcode/update/{id}',[QrcodeController::class, "updateQrcode"]);
+Route::post('/qrcode/update',[QrcodeController::class, "updateQrcode"]);
 Route::delete('/qrcode/delete/{id}',[QrcodeController::class, "deleteQrcode"]);
+// Stations schedules routes
+Route::get('/station-schedules',[StationScheduleController::class, "getAllStationSchedules"]);
+Route::post('/create-station-schedule',[StationScheduleController::class, "createStationSchedule"]);
+Route::get('/station-schedule/{id}',[StationScheduleController::class, "getStationScheduleById"]);
+Route::post('/station-schedule/update',[StationScheduleController::class, "updateStationSchedule"]);
+Route::delete('/station-schedule/delete/{id}',[StationScheduleController::class, "deleteStationSchedule"]);
 
-// Stations routes
-// Route::get('/get-all-stations',[StationController::class, "getAllStations"]);
-// Route::post('/create-station',[StationController::class, "createStation"]);
-// Route::get('/station/{id}',[StationController::class, "getStationById"]);
-// Route::put('/station/update/{id}',[StationController::class, "updateStation"]);
-// Route::delete('/station/delete/{id}',[StationController::class, "deleteStation"]);
+// Wallets routes
+Route::get('/get-all-wallets',[WalletController::class, "getAllWallets"]);
+Route::post('/create-wallet',[WalletController::class, "createWallet"]);
+Route::get('/wallet/{id}',[WalletController::class, "getWalletById"]);
+Route::put('/wallet/update/{id}',[WalletController::class, "updateWallet"]);
+Route::delete('/wallet/delete/{id}',[WalletController::class, "deleteWallet"]);
 
 // Companies routes
  });
