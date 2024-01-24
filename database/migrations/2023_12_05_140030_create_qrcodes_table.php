@@ -17,7 +17,6 @@ return new class extends Migration
         $table->string("status");
         $table->string("plate_number");
         $table->string("driver_id");
-        $table->string("user_id");
         $table->string("station_id");
         $table->string("amount");
         $table->string("created_by");
