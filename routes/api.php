@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/register',[AuthController::class,'register']);
+Route::post('/signup',[AuthController::class,'signup']);
 
 Route::post('/login',[AuthController::class,'Login'] );
 
@@ -43,6 +43,7 @@ Route::post('/create-qrcode',[QrcodeController::class, "createQrcode"]);
 Route::get('/qrcode/{id}',[QrcodeController::class, "getQrcodeById"]);
 Route::post('/qrcode/update',[QrcodeController::class, "updateQrcode"]);
 Route::delete('/qrcode/delete/{id}',[QrcodeController::class, "deleteQrcode"]);
+Route::delete('/qrcodes/{id}', [QrcodeController::class, 'deleteQrcode']);
 // Stations schedules routes
 Route::get('/station-schedules',[StationScheduleController::class, "getAllStationSchedules"]);
 Route::post('/create-station-schedule',[StationScheduleController::class, "createStationSchedule"]);
