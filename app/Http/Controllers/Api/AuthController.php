@@ -60,6 +60,19 @@ class AuthController extends Controller
         ], 200);
 }
 
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+        // Here you would normally send a password reset email.
+        // For now, just return a success message.
+        return response()->json([
+            'status' => 200,
+            'message' => 'If your email exists in our system, you will receive a password reset link shortly.'
+        ], 200);
+    }
+
     public function signup(Request $request){
         $fields = $request->validate([
             'firstname' => 'required|string',

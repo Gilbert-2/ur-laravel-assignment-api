@@ -27,6 +27,8 @@ Route::post('/signup',[AuthController::class,'signup']);
 
 Route::post('/login',[AuthController::class,'Login'] );
 
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
 // Employees routes
 
 //Protected routes-Only authenticated users can have access to protected routes//
@@ -44,6 +46,8 @@ Route::get('/qrcode/{id}',[QrcodeController::class, "getQrcodeById"]);
 Route::post('/qrcode/update',[QrcodeController::class, "updateQrcode"]);
 Route::delete('/qrcode/delete/{id}',[QrcodeController::class, "deleteQrcode"]);
 Route::delete('/qrcodes/{id}', [QrcodeController::class, 'deleteQrcode']);
+Route::post('/qrcode/confirm',[QrcodeController::class, "confirmQrcode"]);
+Route::post('/qrcode/details',[QrcodeController::class, "getQrcodeDetails"]);
 // Stations schedules routes
 Route::get('/station-schedules',[StationScheduleController::class, "getAllStationSchedules"]);
 Route::post('/create-station-schedule',[StationScheduleController::class, "createStationSchedule"]);

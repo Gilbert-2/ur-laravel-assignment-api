@@ -8,7 +8,14 @@ use App\Models\StationSchedules;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Transaction;
 
+/**
+ * QR code status values:
+ * - PENDING: Created, waiting for driver confirmation
+ * - COMPLETED: Transaction done, QR code used
+ * - EXPIRED: (optional) QR code expired, not used
+ */
 class QrcodeController extends Controller
 {
     public function getAllQrcodes()
@@ -50,19 +57,29 @@ class QrcodeController extends Controller
     {
         $request->validate([
             "station_id"=>'required',
-            "amount" => 'required'
+            "amount" => 'required|numeric'
         ]);
+        // Only stations can create QR codes. You may want to add a role check here if available.
         $qrcode = Qrcode::create([
             "qrcode" => Str::random(50),
-            "status" => "VALID",
-            "plate_number" => "RAB111F",
-            "driver_id" => $request->user()->id,
+            "status" => "PENDING",
+            "plate_number" => $request->plate_number ?? null, // Optional, or remove if not needed
+            "driver_id" => null, // Not assigned at creation
             "station_id" => $request->station_id,
             "amount" => $request->amount,
             "created_by" => $request->user()->id
         ]);
-        if ($qrcode->count() > 0) {
-
+        // Ensure station wallet exists
+        $stationWallet = \App\Models\Wallet::where('station_id', $request->station_id)->first();
+        if (!$stationWallet) {
+            \App\Models\Wallet::create([
+                'balance' => 1000000, // For testing; set to 0 for production
+                'user_id' => 0,
+                'station_id' => $request->station_id,
+                'created_by' => $request->user()->id
+            ]);
+        }
+        if ($qrcode) {
             return response()->json([
                 'status' => 200,
                 'data'=>$qrcode,
@@ -126,6 +143,94 @@ class QrcodeController extends Controller
                 "message" => 'No qrcode found.',
             ], 404);
         }
+    }
+    public function confirmQrcode(Request $request)
+    {
+        $request->validate([
+            'qrcode' => 'required|string',
+        ]);
+        $qrcode = Qrcode::where('qrcode', $request->qrcode)->first();
+        if (!$qrcode) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'QR code not found.',
+            ], 404);
+        }
+        if ($qrcode->status !== 'PENDING') {
+            return response()->json([
+                'status' => 400,
+                'message' => 'QR code is not available for confirmation.',
+            ], 400);
+        }
+        $driver = $request->user();
+        // Find driver's wallet
+        $driverWallet = \App\Models\Wallet::where('user_id', $driver->id)->first();
+        if (!$driverWallet || $driverWallet->balance < $qrcode->amount) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Insufficient balance in driver wallet.',
+            ], 400);
+        }
+        // Find station's wallet
+        $stationWallet = \App\Models\Wallet::where('station_id', $qrcode->station_id)->first();
+        if (!$stationWallet) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Station wallet not found.',
+            ], 404);
+        }
+        // Move money
+        $driverWallet->balance -= $qrcode->amount;
+        $stationWallet->balance += $qrcode->amount;
+        $driverWallet->save();
+        $stationWallet->save();
+        // Update QR code
+        $qrcode->update([
+            'status' => 'COMPLETED',
+            'driver_id' => $driver->id,
+        ]);
+        // Record transaction
+        $transaction = Transaction::create([
+            'wallet_id' => $driverWallet->id,
+            'amount' => $qrcode->amount,
+            'station_id' => $qrcode->station_id,
+            'driver_id' => $driver->id,
+            'status' => 'COMPLETED',
+            'created_by' => $driver->id,
+        ]);
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'amount' => $transaction->amount,
+                'plate_number' => $qrcode->plate_number,
+                'station_id' => $transaction->station_id,
+                'status' => $transaction->status,
+            ],
+            'message' => 'Qrcode found',
+        ], 200);
+    }
+    public function getQrcodeDetails(Request $request)
+    {
+        $request->validate([
+            'qrcode' => 'required|string',
+        ]);
+        $qrcode = Qrcode::where('qrcode', $request->qrcode)->first();
+        if (!$qrcode) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'QR code not found.',
+            ], 404);
+        }
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'amount' => $qrcode->amount,
+                'plate_number' => $qrcode->plate_number,
+                'station_id' => $qrcode->station_id,
+                'status' => $qrcode->status,
+            ],
+            'message' => 'Qrcode details found',
+        ], 200);
     }
     public function deleteQrcode(int $id)
     {
